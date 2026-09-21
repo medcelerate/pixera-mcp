@@ -1,0 +1,28 @@
+# pixera-mcp configuration.
+# Copy to config.yaml and edit. All fields have defaults; the admin console
+# reads and writes this file. Selected values can be overridden with
+# PIXERAMCP_* environment variables (see README).
+
+# The Pixera server's Native API (JSON-RPC over TCP). Pixera acts as the TCP
+# server; enable the API and set the port in Pixera Settings > API.
+pixera:
+  host: 127.0.0.1     # the Pixera server; 127.0.0.1 if the bridge runs on it
+  port: 1400          # Native API TCP(dl) port (varies by version/config)
+  timeoutSeconds: 15
+
+# How AI clients connect to the MCP side. transport: http | stdio | both.
+# HTTP is exposed on all interfaces by default so networked clients can reach
+# the bridge running alongside Pixera.
+mcp:
+  transport: http
+  http:
+    addr: 0.0.0.0:8095
+
+# Admin console for viewing status and repointing the Pixera target. Runs on a
+# separate port. Bind to 127.0.0.1 to restrict it to the local machine.
+web:
+  enabled: true
+  addr: 0.0.0.0:8096
+
+log:
+  level: info

@@ -1,0 +1,18 @@
+# Binaries and build output
+/pixera-mcp
+/dist/
+/build/
+*.exe
+*.mcpb
+
+# Downloaded build tools
+/.tools/
+
+# Local config (do not commit real deployment config)
+/config.yaml
+
+# Editor / OS
+.DS_Store
+*.swp
+.idea/
+.vscode/

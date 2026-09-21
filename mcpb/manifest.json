@@ -1,0 +1,83 @@
+{
+  "manifest_version": "0.3",
+  "name": "pixera-mcp",
+  "display_name": "Pixera Bridge",
+  "version": "0.1.0",
+  "description": "Control a Pixera media server from Claude over the Pixera Native API: timeline transport, cues, screens, project and any other API method.",
+  "long_description": "pixera-mcp bridges the Pixera Native API (JSON-RPC over TCP) to the Model Context Protocol. It exposes curated tools for timeline transport, cues, screens, project load/save and layer/parameter control, plus a generic pixera_call for any of Pixera's ~250 API methods. Point the Host setting at your Pixera server.",
+  "author": {
+    "name": "Evan Clark",
+    "url": "https://github.com/medcelerate/pixera-mcp"
+  },
+  "homepage": "https://github.com/medcelerate/pixera-mcp",
+  "documentation": "https://github.com/medcelerate/pixera-mcp/blob/main/README.md",
+  "support": "https://github.com/medcelerate/pixera-mcp/issues",
+  "license": "GPL-3.0",
+  "icon": "icon.png",
+  "keywords": ["pixera", "av-stumpfl", "media-server", "show-control", "timeline", "projection"],
+  "privacy_policies": [
+    "https://github.com/medcelerate/pixera-mcp/blob/main/PRIVACY.md"
+  ],
+  "server": {
+    "type": "binary",
+    "entry_point": "server/pixera-mcp-darwin",
+    "mcp_config": {
+      "command": "${__dirname}/server/pixera-mcp-darwin",
+      "args": [],
+      "env": {
+        "PIXERAMCP_CONFIG": "${user_config.config_path}",
+        "PIXERAMCP_HOST": "${user_config.host}",
+        "PIXERAMCP_PORT": "${user_config.port}",
+        "PIXERAMCP_MCP_TRANSPORT": "stdio",
+        "PIXERAMCP_WEB_ENABLED": "${user_config.web_enabled}"
+      },
+      "platform_overrides": {
+        "darwin": { "command": "${__dirname}/server/pixera-mcp-darwin" },
+        "linux": { "command": "${__dirname}/server/pixera-mcp-linux" },
+        "win32": { "command": "${__dirname}/server/pixera-mcp-win32.exe" }
+      }
+    }
+  },
+  "user_config": {
+    "host": {
+      "type": "string",
+      "title": "Pixera server host",
+      "description": "Hostname or IP of the Pixera server. Use 127.0.0.1 only if this bridge runs on the Pixera machine itself.",
+      "default": "127.0.0.1",
+      "required": false
+    },
+    "port": {
+      "type": "number",
+      "title": "Native API TCP port",
+      "description": "Pixera Native API TCP(dl) port (default 1400; set to match Pixera Settings > API).",
+      "default": 1400,
+      "required": false
+    },
+    "config_path": {
+      "type": "file",
+      "title": "Config file",
+      "description": "Optional path to a pixera-mcp YAML config file (overrides host/port).",
+      "required": false
+    },
+    "web_enabled": {
+      "type": "boolean",
+      "title": "Enable admin console",
+      "description": "Serve the admin console (default on 0.0.0.0:8096) for viewing status and repointing the Pixera target.",
+      "default": true,
+      "required": false
+    }
+  },
+  "tools_generated": false,
+  "tools": [
+    { "name": "pixera_status", "description": "Target + reachability + API revision." },
+    { "name": "pixera_set_target", "description": "Repoint the bridge at a different Pixera server." },
+    { "name": "pixera_timeline_play", "description": "Play a timeline by name." },
+    { "name": "pixera_timeline_stop", "description": "Stop a timeline by name." },
+    { "name": "pixera_timeline_apply_cue_number", "description": "Trigger a cue by number." },
+    { "name": "pixera_list_screens", "description": "List screen names." },
+    { "name": "pixera_call", "description": "Call any Pixera Native API method directly." }
+  ],
+  "compatibility": {
+    "platforms": ["darwin", "win32", "linux"]
+  }
+}
