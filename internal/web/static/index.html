@@ -52,6 +52,17 @@
     </div>
   </section>
 
+  <section class="card" id="discoverCard" style="display:none">
+    <h2>Discovery</h2>
+    <p class="muted" style="margin-top:0">Listen for a Pixera heartbeat (UDP) to find the active API server and port.</p>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center">
+      <button onclick="discover(false)">Discover</button>
+      <button class="primary" onclick="discover(true)">Discover &amp; apply</button>
+      <span class="muted" id="discInfo"></span>
+    </div>
+    <div id="discMsg" class="msg"></div>
+  </section>
+
   <section class="card">
     <h2>Repoint Pixera server</h2>
     <p class="muted" style="margin-top:0">Aim the bridge at a different Pixera server. Changes apply immediately and are saved to the config.</p>
@@ -80,6 +91,20 @@ function renderStatus(st){
   const t = st.target || {};
   if (!$("form").host.value) $("form").host.value = t.host || "";
   if (!$("form").port.value && t.port) $("form").port.value = t.port;
+  $("discoverCard").style.display = st.discoveryEnabled ? "" : "none";
+  if (st.discovered) {
+    const d = st.discovered;
+    $("discInfo").textContent = `last seen: ${d.serverIp}:${d.apiPort}`;
+  }
+}
+async function discover(apply){
+  const m = $("discMsg"); m.className="msg ok"; m.textContent = apply?"Discovering & applying…":"Discovering…";
+  try {
+    const hb = await api("/api/discover"+(apply?"?apply=true":""), { method:"POST" });
+    if (hb.error) { m.className="msg err"; m.textContent = hb.error; return; }
+    m.className="msg ok"; m.textContent = `Found ${hb.serverIp}:${hb.apiPort}` + (apply?" — applied":"");
+    refresh();
+  } catch(e){ m.className="msg err"; m.textContent = e.message; }
 }
 async function refresh(){
   try { renderStatus(await api("/api/status")); }

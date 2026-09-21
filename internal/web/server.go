@@ -37,6 +37,7 @@ func (s *Server) Handler() http.Handler {
 	mux.Handle("/", http.FileServer(http.FS(sub)))
 	mux.HandleFunc("/api/status", s.handleStatus)
 	mux.HandleFunc("/api/target", s.handleTarget)
+	mux.HandleFunc("/api/discover", s.handleDiscover)
 	return mux
 }
 

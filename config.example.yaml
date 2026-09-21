@@ -9,6 +9,13 @@ pixera:
   host: 127.0.0.1     # the Pixera server; 127.0.0.1 if the bridge runs on it
   port: 1400          # Native API TCP(dl) port (varies by version/config)
   timeoutSeconds: 15
+  # Auto-discover the active API endpoint from Pixera's heartbeat (a UDP JSON
+  # broadcast/multicast that advertises the server IP and API port every second).
+  discovery:
+    enabled: false          # turn on the pixera_discover tool + console discovery
+    port: 1500              # heartbeat UDP port (set in Pixera Settings > API)
+    multicastGroup: ""      # multicast IP to join, if Pixera multicasts; else empty
+    autoApply: false        # automatically repoint the bridge at the discovered server
 
 # How AI clients connect to the MCP side. transport: http | stdio | both.
 # HTTP is exposed on all interfaces by default so networked clients can reach

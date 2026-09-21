@@ -29,9 +29,26 @@ type Config struct {
 
 // PixeraConfig is the target Pixera server's API endpoint.
 type PixeraConfig struct {
-	Host           string `yaml:"host"`
-	Port           int    `yaml:"port"`
-	TimeoutSeconds int    `yaml:"timeoutSeconds"`
+	Host           string          `yaml:"host"`
+	Port           int             `yaml:"port"`
+	TimeoutSeconds int             `yaml:"timeoutSeconds"`
+	Discovery      DiscoveryConfig `yaml:"discovery"`
+}
+
+// DiscoveryConfig controls auto-discovery of the Pixera API endpoint via the
+// heartbeat port (a UDP JSON broadcast/multicast that advertises the active
+// API port and server IP).
+type DiscoveryConfig struct {
+	// Enabled turns on the pixera_discover tool and the console's discovery.
+	Enabled bool `yaml:"enabled"`
+	// Port is the heartbeat UDP port configured in Pixera (default 1500).
+	Port int `yaml:"port"`
+	// MulticastGroup is the multicast IP to join, if Pixera multicasts the
+	// heartbeat. Leave empty for unicast/broadcast.
+	MulticastGroup string `yaml:"multicastGroup"`
+	// AutoApply repoints the bridge at the discovered server automatically
+	// (on startup and whenever a heartbeat changes the target).
+	AutoApply bool `yaml:"autoApply"`
 }
 
 // MCPConfig selects how MCP clients connect.
@@ -101,6 +118,9 @@ func (c *Config) applyDefaults() {
 	}
 	if c.Pixera.TimeoutSeconds == 0 {
 		c.Pixera.TimeoutSeconds = d.Pixera.TimeoutSeconds
+	}
+	if c.Pixera.Discovery.Port == 0 {
+		c.Pixera.Discovery.Port = 1500
 	}
 	if c.MCP.Transport == "" {
 		c.MCP.Transport = d.MCP.Transport

@@ -56,6 +56,12 @@ func run(cfgPath string, logf func(string, ...any)) error {
 	a := app.New(cfg, cfgPath, logf)
 	defer a.Client().Close()
 
+	// Heartbeat discovery of the active Pixera API endpoint (opt-in).
+	if cfg.Pixera.Discovery.Enabled {
+		logf("heartbeat discovery enabled on udp/%d (autoApply=%v)", cfg.Pixera.Discovery.Port, cfg.Pixera.Discovery.AutoApply)
+		a.AutoDiscover(ctx)
+	}
+
 	if cfg.Web.Enabled {
 		wsrv := web.New(a, logf)
 		go func() {

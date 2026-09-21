@@ -89,16 +89,27 @@ Overridable via env: `PIXERAMCP_HOST`, `PIXERAMCP_PORT`,
 `PIXERAMCP_MCP_TRANSPORT`, `PIXERAMCP_MCP_HTTP_ADDR`, `PIXERAMCP_WEB_ADDR`,
 `PIXERAMCP_WEB_ENABLED`, `PIXERAMCP_LOG_LEVEL`, `PIXERAMCP_CONFIG`.
 
+### Discovery
+
+Pixera can broadcast a **heartbeat** (UDP JSON, default port 1500) advertising
+its active API port and server IP. Enable `pixera.discovery` to auto-discover the
+endpoint: the `pixera_discover` tool and the console's **Discover** button find
+the server, and with `autoApply: true` the bridge repoints itself automatically
+whenever the heartbeat changes. Set `multicastGroup` if Pixera multicasts the
+heartbeat. See `config.example.yaml`.
+
 ### Admin console
 
 At `web.addr` (default `http://<ip>:8096`) you can see the target, whether
-Pixera is reachable, its API revision, and **repoint** at a different host/port.
+Pixera is reachable, its API revision, and **repoint** at a different host/port —
+plus a **Discover** panel when discovery is enabled.
 
 ---
 
 ## MCP tools
 
 **Control:** `pixera_status`, `pixera_set_target`, `pixera_get_api_revision`,
+`pixera_discover` (find the server via its heartbeat, optionally repoint),
 `pixera_call` (any method by name + JSON params).
 
 **Timeline:** `pixera_timeline_play` / `pause` / `stop`,

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/medcelerate/pixera-mcp/internal/pixera"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -28,6 +29,12 @@ func registerControlTools(s *mcp.Server, d *deps) {
 		Description: "Return the Pixera API revision number (Pixera.Utility.getApiRevision).",
 		Annotations: annRead("API revision"),
 	}, d.apiRevision)
+
+	mcp.AddTool(s, &mcp.Tool{
+		Name:        "pixera_discover",
+		Description: "Listen for a Pixera heartbeat (UDP, default port 1500) to auto-discover the active API server IP and Native API TCP port. Set apply=true to repoint the bridge at the discovered server.",
+		Annotations: annWrite("Discover Pixera"),
+	}, d.discover)
 
 	mcp.AddTool(s, &mcp.Tool{
 		Name:        "pixera_call",
@@ -82,6 +89,30 @@ func (d *deps) apiRevision(ctx context.Context, _ *mcp.CallToolRequest, _ struct
 		return nil, nil, err
 	}
 	return jsonResult("API revision:", raw)
+}
+
+// --- pixera_discover ---
+
+type discoverIn struct {
+	Apply          bool `json:"apply,omitempty" jsonschema:"repoint the bridge at the discovered server"`
+	TimeoutSeconds int  `json:"timeoutSeconds,omitempty" jsonschema:"how long to wait for a heartbeat, in seconds (default 6)"`
+}
+
+func (d *deps) discover(ctx context.Context, _ *mcp.CallToolRequest, in discoverIn) (*mcp.CallToolResult, any, error) {
+	timeout := time.Duration(in.TimeoutSeconds) * time.Second
+	if in.TimeoutSeconds <= 0 {
+		timeout = 6 * time.Second
+	}
+	hb, err := d.app.Discover(ctx, in.Apply, timeout)
+	if err != nil {
+		return nil, nil, err
+	}
+	summary := fmt.Sprintf("Discovered Pixera at %s (API port %d)", hb.ServerIP, hb.APIPort)
+	if in.Apply {
+		summary += " — repointed"
+	}
+	raw, _ := json.Marshal(hb)
+	return jsonResult(summary+":", raw)
 }
 
 // --- pixera_call ---
